@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title_html %}
+    Contact info
+{% endblock %}
+{% block h1 %}
+    <h1>My Information</h1>
+{% endblock %}
+{% block content %}
+    <form method="post" action="{% url 'info' %}">
+    {% csrf_token %}
+        <div>
+            <table>
+                <tr>
+                    <td>First Name</td>
+                    <td>
+                        <input type="text" name="fname" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>Last Name</td>
+                    <td>
+                        <input type="text" name="lname" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>Phone Number #</td>
+                    <td>
+                        <input type="text" name="phone" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>Email</td>
+                    <td>
+                        <input type="text" name="email" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>Address</td>
+                    <td>
+                        <input type="text" name="st_address" placeholder="Enter Address, City, State, Zipcode" style="width: 500px;"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        
+                    </td>
+                </tr>
+            </table>
+        </div>
+    <p><input type="submit" value="Enter" /></p>
+    </form>
+    <br>
+    <br>
+    {% block msg %}
+    <span> {{message | upper }} </span>
+    {% endblock msg %}
+{% endblock %}

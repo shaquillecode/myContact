@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title_html %}
+    Login
+{% endblock %}
+{% block content %}   
+    <h3>Username = my</h3>
+    <h3>Password = info</h3>
+    <form method='post' action="{% url 'login' %}">
+    {% csrf_token %}
+        <div>
+            <table>
+                <tr>
+                    <td>Username:</td>
+                    <td>
+                        <input type="text" name="username" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>Password</td>
+                    <td>
+                        <input type="text" name="password" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+    <p><input type='submit' value="Enter" /></p>
+    </form>
+    <br>
+    <br>
+    {% block msg %}
+    <span> {{message | upper }} </span>
+    {% endblock msg %}
+{% endblock %}
