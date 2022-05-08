@@ -1,18 +1,19 @@
 {% extends "base.html" %}
-<body>
-    <center>
-        {% block content %}
-        <a style=text-decoration:none; href='login'>
-            <div class="card" > 
-                {% block msg %}         
-                <p>{{ message }}</p>
-                {% endblock msg %}
-                <br>
-                <br> 
-                <p>{{ res }}</p>
-            </div>
-        </a>
-        {% endblock %}
-    </center>
-</body>
+<html>
+    <body>
+        <center>
+            {% block content %}
+            <a style=text-decoration:none; href='login'>
+                <div class="card" > 
+                    {% block msg %}         
+                    <p>{{ message }}</p>
+                    {% endblock msg %}
+                    <br>
+                    <br> 
+                    <p>{{ res }}</p>
+                </div>
+            </a>
+            {% endblock %}
+        </center>
+    </body>
 </html>
