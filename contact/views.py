@@ -4,7 +4,7 @@ import logging as logg
 from django.shortcuts import render
 import requests as rqs
 from dotenv import dotenv_values
-from . forms import FormInscription
+from . forms import LoginForm, AddressForm
 from . models import Contact
 from . import utils
 from . import constants as csts
@@ -23,20 +23,23 @@ def index(request):
 
 def login(request):
     '''Login Page'''
-    form = FormInscription(request.POST)
-    username = form["username"].value()
-    password = form["password"].value()
-
-    if isinstance(username,str) and isinstance(password, str):
-        if username.strip() == 'my' and password.strip() == 'info':
-            logg.info("Authenticated user")
-            msg = 'Nice! Username and password was correct'
-            return render(request, "info.html", {'message':msg})
+    form = LoginForm(request.POST)
+    if form.is_valid():
+        try:
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            if username == 'my' and password == 'info':
+                logg.info("Authenticated user")
+                msg = 'Nice! Username and password was correct'
+                return render(request, "info.html", {'message':msg})
+        except:
+            pass
     else:
+        form = LoginForm()
         logg.info("Not Authenticated user")
         # count number of login attempts, block user from login
         msg = 'You will get blocked after 5 wrong attempts'
-        return render(request, "login.html", {'message':msg})
+        return render(request, "login.html", {'message':msg, 'form':form})
 
 def saved(request):
     '''This view will Display all saved contacts'''
@@ -48,18 +51,15 @@ def info(request):
     Saves Clients/Users to Admin Site Contact book
     Admin will be able to add, change, or delete Contacts
     """
-    def global_positioning_system(address):
+    def global_positioning_system(user_address):
         """
         Global Positioning System (GPS) Coordinates Finder
         Returns GeoLocation of clients' address
         """
-        print(address) # This will print the Dictionary data structure ie. Key,Value pair.
-        address_str = address["street_address"]
-        print(address_str) # This will print the street adress value, which is a string.
 
         data = {
             'key': config['GEO_TOKEN'],
-            'q': address_str,
+            'q': user_address,
             'format': 'json'
         }
 
@@ -93,17 +93,36 @@ def info(request):
             \n ie. The University of Texas at Austin, Austin, TX 78712"
             return render(request, "info.html", {'message': message})
 
-    if request.method == 'POST':
+    if request.POST:
+        form = AddressForm(request.POST)
         res = {}
         res['first'] = request.POST['fname']
         res['last'] = request.POST['lname']
         res['phone']= request.POST['phone']
         res['email']= request.POST['email']
-        res['st_address'] = request.POST['st_address']
-        curr_location = {'street_address': res['st_address']}
+        if form.is_valid():
+            try:
+                name = form.cleaned_data.get('address')
+                city = form.cleaned_data.get('city')
+                state = form.cleaned_data.get('state')
+                country = form.cleaned_data.get('country')
+                zip_code = form.cleaned_data.get('zip_code')
+                curr_loc = {
+                    'name': name,
+                    'city': city,
+                    'state': state,
+                    'country': country,
+                    'zip_code': zip_code
+                    }
+            except:
+                logg.info(f"Form is not valid")
+                pass
 
-        if utils.address_validator(curr_location):
-            contact_profile = Contact(first_name = res['first'], last_name= res['last'], phone = res['phone'], email= res['email'], address= res['st_address'])
+        if utils.address_validator(curr_loc):
+            print(curr_loc) # This will print the Dictionary data structure ie. Key,Value pair.
+            location = " ".join([str(i) for i in curr_loc.values()])
+            print(location) # This will print a string of the street address values.
+            contact_profile = Contact(first_name = res['first'], last_name= res['last'], phone = res['phone'], email= res['email'], address= location)
             contact_profile.save()
-            logg.info(f"User entered {res['first']} Address which is {res['st_address']}")
-            return global_positioning_system(curr_location)
+            logg.info(f"User {res['first']} entered {res} and their Address is {location}")
+            return global_positioning_system(location)
